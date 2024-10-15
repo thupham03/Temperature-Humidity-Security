@@ -5,7 +5,7 @@
 #define DHTPIN 4
 #define DHTTYPE DHT22
 
-const char* ssid = "Minh Thu";
+const char* ssid = "Wokwi-GUEST";
 const char* password = "";
 
 const char* MQTTServer = "broker.emqx.io";
