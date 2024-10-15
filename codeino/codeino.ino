@@ -1,10 +1,9 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <DHT.h>
-#include <ArduinoJson.h>
 
 #define DHTPIN 4
-#define DHTTYPE DHT11 
+#define DHTTYPE DHT22
 
 const char* ssid = "Wokwi-GUEST";
 const char* password = "";
@@ -21,7 +20,7 @@ DHT dht(DHTPIN, DHTTYPE);
 
 void WIFIConnect() {
   Serial.println("Connecting to SSID");
-  WiFi.begin(ssid, password);  // Kết nối đến mạng WiFi Minh Thu 5G
+  WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -52,7 +51,7 @@ void MQTT_Reconnect() {
 void setup() {
   Serial.begin(115200);
   dht.begin();
-  WIFIConnect();  // Gọi hàm kết nối WiFi
+  WIFIConnect();
 
   client.setServer(MQTTServer, Port);
 }

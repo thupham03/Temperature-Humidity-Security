@@ -1,31 +1,37 @@
-import paho.mqtt.client as mqtt
-from pymongo import MongoClient
 import json
+from pymongo import MongoClient
+from datetime import datetime
+import paho.mqtt.client as mqtt
 
-# Kết nối tới MongoDB bằng URI của bạn
+# Kết nối đến MongoDB
 client_db = MongoClient(
-    "mongodb+srv://admin:Ua3rWeU0S3SUd214@temhum.ve2zq.mongodb.net/?retryWrites=true&w=majority&appName=temhum")
+    "mongodb+srv://admin:Ua3rWeU0S3SUd214@temhum.ve2zq.mongodb.net/?retryWrites=true&w=majority&appName=temhum"
+)
 db = client_db['dht11']
 collection = db['sensor']
 
-
-# Hàm xử lý khi nhận được tin nhắn từ MQTT
 def on_message(client, userdata, message):
     print(f"Received message: {message.payload.decode()}")
-    data = json.loads(message.payload.decode())
 
-    temperature = data['temperature']
-    humidity = data['humidity']
+    try:
+        data = json.loads(message.payload.decode())
 
-    # Lưu dữ liệu vào MongoDB
-    collection.insert_one({
-        'temperature': temperature,
-        'humidity': humidity
-    })
-    print("Data stored in MongoDB")
+        temperature = data.get('temperature')
+        humidity = data.get('humidity')
 
+        if temperature is not None and humidity is not None:
+            timestamp = datetime.now()
+            collection.insert_one({
+                'temperature': temperature,
+                'humidity': humidity,
+                'timestamp': timestamp
+            })
+            print("Data stored in MongoDB")
+        else:
+            print("Invalid data format")
+    except json.JSONDecodeError:
+        print("Error decoding JSON")
 
-# Thiết lập kết nối MQTT
 mqtt_client = mqtt.Client("python_mqtt_client")
 mqtt_client.connect("broker.emqx.io", 1883, 60)
 mqtt_client.on_message = on_message
